@@ -5,6 +5,7 @@ use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Symbol};
 mod auth;
 mod errors;
 mod history;
+mod iceberg;
 mod multi_asset;
 mod portfolio;
 mod risk;
@@ -14,6 +15,12 @@ mod strategies;
 
 use crate::storage::DataKey;
 use errors::AutoTradeError;
+
+pub use iceberg::{
+    create_iceberg_order, cancel_iceberg_order, get_full_order_view, get_public_order_view,
+    get_user_orders, on_sdex_fill, update_iceberg_price, AssetPair, CancellationInfo,
+    FullOrderView, IcebergOrder, OrderSide, OrderStatus, PublicOrderView,
+};
 
 /// ==========================
 /// Types
