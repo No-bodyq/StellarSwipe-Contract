@@ -13,6 +13,7 @@ mod history;
 mod iceberg;
 mod multi_asset;
 mod portfolio;
+mod referral;
 mod risk;
 mod risk_parity;
 mod sdex;
@@ -242,6 +243,13 @@ impl AutoTradeContract {
             .set(&DataKey::Trades(user.clone(), signal_id), &trade);
 
         if execution.executed_amount > 0 {
+            // ── Referral fee split ────────────────────────────────────────────
+            // Platform fee = 7% of executed amount (0.7 XLM per 10 XLM trade).
+            // Referral reward = 10% of platform fee → deducted from platform share.
+            let platform_fee = execution.executed_amount * 7 / 100;
+            let referral_reward =
+                referral::process_referral_reward(&env, &user, signal.base_asset, platform_fee);
+
             let hist_status = match status {
                 TradeStatus::Filled | TradeStatus::PartiallyFilled => {
                     history::HistoryTradeStatus::Executed
@@ -256,7 +264,7 @@ impl AutoTradeContract {
                 signal.base_asset,
                 execution.executed_amount,
                 execution.executed_price,
-                0,
+                platform_fee - referral_reward,
                 hist_status,
             );
         }

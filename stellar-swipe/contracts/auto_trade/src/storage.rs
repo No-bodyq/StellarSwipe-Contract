@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use soroban_sdk::{contracttype, Address, Env};
+use soroban_sdk::{contracttype, symbol_short, Address, Env};
 
 use crate::auth::{AuthConfig, AuthKey};
 
@@ -56,7 +56,6 @@ pub fn revoke_user_authorization(env: &Env, user: &Address) {
     env.storage()
         .persistent()
         .remove(&AuthKey::Authorization(user.clone()));
-=======
 #[cfg(test)]
 pub fn authorize_user(env: &Env, user: &Address) {
     let config = crate::auth::AuthConfig {
