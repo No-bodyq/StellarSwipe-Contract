@@ -5,6 +5,7 @@ use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String, Sy
 mod admin;
 mod advanced_risk;
 mod auth;
+mod conditional;
 mod correlation;
 mod errors;
 mod history;
@@ -578,8 +579,7 @@ feature/mean-reversion-strategy
     ) -> Result<(), AutoTradeError> {
         user.require_auth();
         strategies::mean_reversion::enable_mean_reversion_strategy(&env, strategy_id)
-
- main
+    }
 
     pub fn set_stat_arb_price_history(
         env: Env,
@@ -977,6 +977,53 @@ feature/mean-reversion-strategy
         available: Vec<u32>,
     ) -> Vec<u32> {
         correlation::suggest_diversification(&env, &user, &available)
+    }
+
+    // ── Conditional Orders (Issue: Options-Style Conditional Orders) ──────────
+
+    /// Create a conditional order that executes when trigger logic fires.
+    #[allow(clippy::too_many_arguments)]
+    pub fn create_conditional_order(
+        env: Env,
+        user: Address,
+        asset_id: u32,
+        side: conditional::ConditionalSide,
+        amount: i128,
+        limit_price: i128,
+        conditions: Vec<conditional::Condition>,
+        logic: conditional::LogicOp,
+        expires_in_seconds: u64,
+    ) -> Result<u64, AutoTradeError> {
+        conditional::create_conditional_order(
+            &env, user, asset_id, side, amount, limit_price, conditions, logic, expires_in_seconds,
+        )
+    }
+
+    /// Cancel a pending conditional order.
+    pub fn cancel_conditional_order(
+        env: Env,
+        id: u64,
+        user: Address,
+    ) -> Result<(), AutoTradeError> {
+        conditional::cancel_conditional_order(&env, id, user)
+    }
+
+    /// Get a conditional order by id.
+    pub fn get_conditional_order(
+        env: Env,
+        id: u64,
+    ) -> Result<conditional::ConditionalOrder, AutoTradeError> {
+        conditional::get_conditional_order(&env, id)
+    }
+
+    /// Evaluate all active conditional orders; returns ids of newly triggered ones.
+    pub fn check_and_trigger_conditionals(env: Env) -> Vec<u64> {
+        conditional::check_and_trigger(&env)
+    }
+
+    /// Mark a triggered conditional order as executed (call after trade fill).
+    pub fn mark_conditional_executed(env: Env, id: u64) -> Result<(), AutoTradeError> {
+        conditional::mark_executed(&env, id)
     }
 }
 

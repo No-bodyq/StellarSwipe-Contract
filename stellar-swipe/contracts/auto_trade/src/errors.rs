@@ -78,6 +78,12 @@ Correlation-Based-Risk
     CorrelationLimitExceeded = 42,
     TooManyCorrelatedPositions = 43,
 
+    // Conditional Orders
+    ConditionalOrderNotFound = 44,
+    ConditionalOrderNotPending = 45,
+    ConditionalOrderNotTriggered = 46,
+    InvalidConditionalConfig = 47,
+
  main
  main
 main
